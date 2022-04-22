@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
+from io import StringIO
 import math
 import os
 import pickle
@@ -26,15 +26,18 @@ import numpy as np
 #from numpy import matrix
 #from numpy import linalg
 
-import tkinter
-import tkMessageBox
-import tkColorChooser 
-import tkFileDialog
-from Tkinter import *
+import tkinter as tk
+from tkinter import colorchooser
+from tkinter import filedialog
+#from tkinter import *
+#import tkMessageBox
+#import tkColorChooser 
+#import tkFileDialog
+#from Tkinter import *
 
-from PIL import Image
+from PIL import Image   # You need to install pillow
 
-master = Tk()
+master = tk.Tk()
 master.title("Britney")
 
 # Colors
@@ -66,9 +69,9 @@ shape = 0
 origin = 1
 lvl = 0
 maxLev = 7
-segs = list()
+segs = list()  # All the fractal segments
 factors = list()
-segs01 = list()
+segs01 = list()   # Only level 0 and 1 segments
 segs01.append(list())
 segs01.append(list())
 i = 0
@@ -98,7 +101,7 @@ def htmlColor(rgb_tuple):
 def redrawFractal(screen, segs, origin, backColor, colors, maxLev, shape):
    global back
    global factors
-   screen.delete(ALL)
+   screen.delete(tk.ALL)
    screen.configure(background=bgcolor)
    #back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
    for l in range(0, maxLev + 1):
@@ -135,13 +138,13 @@ def updateFractal(segs01, i, origin, maxLev):
    while(i**actualLev > 5**7):
      actualLev = actualLev - 1
    if len(segs01[0]) > 0:
-      segs.append(np.zeros([1,4], np.int))
-      factors.append(np.zeros([1,1], np.int))
+      segs.append(np.zeros([1,4], int))
+      factors.append(np.zeros([1,1], int))
       segs[0][0][0:4] = segs01[0][0][0:4]
       factors[0][0][0] = 1
       if(len(segs01)>1):
-         segs.append(np.zeros([len(segs01[1]), 4], np.int))
-         factors.append(np.zeros([len(segs01[1]), 1], np.int))
+         segs.append(np.zeros([len(segs01[1]), 4], int))
+         factors.append(np.zeros([len(segs01[1]), 1], int))
 #         for ii in range(0, len(segs01[1])):
 #            segs[1][ii][0:4] = segs01[1][ii][0:4]
 #            factors[1][ii][0] = 0.9
@@ -151,8 +154,8 @@ def updateFractal(segs01, i, origin, maxLev):
             A = np.matrix( [[segs01[0][0][0], -segs01[0][0][1], 1, 0], [segs01[0][0][1], segs01[0][0][0], 0, 1], [segs01[0][0][2], -segs01[0][0][3], 1, 0], [segs01[0][0][3], segs01[0][0][2], 0, 1]])
             AI = A.I
             for l in range(2, actualLev):
-               segs.append(np.zeros([i**(l), 4], np.int))
-               factors.append(np.zeros([i**(l), 1], np.int))
+               segs.append(np.zeros([i**(l), 4], int))
+               factors.append(np.zeros([i**(l), 1], int))
                c = 0
                for j in range(0, i**(l-1)):            
                   y = np.matrix( [[segs[l-1][j][0]], [segs[l-1][j][1]], [segs[l-1][j][2]], [segs[l-1][j][3]]] )
@@ -164,7 +167,7 @@ def updateFractal(segs01, i, origin, maxLev):
                      segs[l][c][0:4] = [int(D1[0,z] + xx[2, 0]), int(D1[1,z] + xx[3, 0]), int(D2[0,z] + xx[2,0]), int(D2[1,z] + xx[3, 0])]
                      factors[l][c][0] = (0.8)
                      c = c + 1
-   return(segs)   
+#   return(segs)   
 
 def drawcircle(canv, x, y, rad, color):
     canv.create_oval(x-rad,y-rad,x+rad,y+rad,width=lineWidth, fill=color, outline = color)
@@ -192,24 +195,25 @@ def changeMaxLev(l):
    global segs
    global factors
    maxLev = int(l)
-   segs = updateFractal(segs01, i, origin, maxLev)
+   #segs = updateFractal(segs01, i, origin, maxLev)
+   updateFractal(segs01, i, origin, maxLev)
    redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
 
 def changeBackColor():
    global bgcolor
-   ctuple,cstr = tkColorChooser.askcolor(initialcolor=bgcolor, title = 'Color de fondo')
+   ctuple,cstr = colorchooser.askcolor(initialcolor=bgcolor, title = 'Color de fondo')
    if ctuple != None:
       bgcolor = cstr
       backColorButton.configure(bg = bgcolor)
-      #screen.itemconfig(back, fill = bgcolor)
-      screen.configure(background=bgcolor)
+      screen.itemconfig(back, fill = bgcolor)
+   redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)      
 
 def changeLineColor(cLev):
    global colors
-   ctuple,cstr = tkColorChooser.askcolor(initialcolor=colors[cLev], title = 'Color del nivel ' + str(cLev + 1))
+   ctuple,cstr = colorchooser.askcolor(initialcolor=colors[cLev], title = 'Color del nivel ' + str(cLev + 1))
    if(ctuple != None):
       colors[cLev] = cstr
-      redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
+   redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
 
 
 def clearScreen():
@@ -227,25 +231,35 @@ def clearScreen():
    segs01 = list()
    segs01.append(list())
    segs01.append(list())
-   screen.delete(ALL)
-   #back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
+   screen.delete(tk.ALL)
+   back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
 
 def saveFile():
    global lvl
    global segs01
-   f = tkFileDialog.asksaveasfile(filetypes = [ ('Fractal Britney', '.art'), ("Todos los archivos",".*")])
-   pickle.dump(segs01, f)
-   pickle.dump(colors, f)
-   pickle.dump(bgcolor, f)
-   pickle.dump(i, f)
-   pickle.dump(origin, f)
-   pickle.dump(lvl, f)
-   pickle.dump(maxLev, f)
-   f.close
+#   print(segs01)
+   files = [ ('Fractal Britney', '.art'), ("Todos los archivos",".*")]
+   f = filedialog.asksaveasfile(mode = "wb", filetypes = files, defaultextension = files)
+   
+#   print("save file");
+#   print("segs01 = ", segs01);
+#   print("i = ", i);
+#   print("origin = ", origin);
+#   print("lvl = ", lvl);
+        
+   if(f):
+      pickle.dump(segs01, f)
+      pickle.dump(colors, f)
+      pickle.dump(bgcolor, f)
+      pickle.dump(i, f)
+      pickle.dump(origin, f)
+      pickle.dump(lvl, f)
+      pickle.dump(maxLev, f)
+      f.close
 
 def exportImage():
    redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
-   infile = tkFileDialog.asksaveasfilename(filetypes = [ ('EPS files', '.eps'), ('JPG files', '.jpg'), ('PNG files', '.png'), ("All files",".*")])
+   infile = filedialog.asksaveasfilename(filetypes = [ ('EPS files', '.eps'), ('JPG files', '.jpg'), ('PNG files', '.png'), ("All files",".*")])
    filename, ext = os.path.splitext(infile)
    if (ext == '.eps'):
       screen.postscript(file=filename)      
@@ -263,23 +277,41 @@ def exportImage():
       im.save(infile, 'PNG')            
    
 def loadFile():
-   global lvl
    global segs01
-   f = tkFileDialog.askopenfile(filetypes = [ ('Fractal Britney', '.art'), ("Todos los archivos",".*")])
-   segs01 = pickle.load(f)
-   colors = pickle.load(f)
-   bgcolor = pickle.load(f)
-   i = pickle.load(f)
-   origin = pickle.load(f)
-   lvl = pickle.load(f)
-   maxLev = pickle.load(f)
-   segs = updateFractal(segs01, i, origin, maxLev)
-   redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
+   global colors
+   global bgcolor
+   global i
+   global origin
+   global lvl
+   global maxLev
+   
+   f = filedialog.askopenfile(mode = "rb", filetypes = [ ('Fractal Britney', '.art'), ("Todos los archivos",".*")])
+   if(f):
+      segs01 = pickle.load(f)
+      colors = pickle.load(f)
+      bgcolor = pickle.load(f)
+      i = pickle.load(f)
+      origin = pickle.load(f)
+      lvl = pickle.load(f)
+#      print("load file");
+#      print("segs01 = ", segs01);
+#      print("i = ", i);
+#      print("origin = ", origin);
+#      print("lvl = ", lvl);
+      maxLev = pickle.load(f)
+      updateFractal(segs01, i, origin, maxLev)
+      redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
 
 # Shows a preview of the line you are creating
 def mouseMove(event):
    global lineDrawn
    global lineItem
+   
+#   print("move");
+#   print("lvl = ", lvl);
+#   print("i = ", i);
+#   print("segs01 = ", segs01);
+   
    if origin == 0:
       x1, y1, x2, y2 = segs01[lvl][i][0], segs01[lvl][i][1], event.x, event.y 
       if shape >= 1:
@@ -295,7 +327,7 @@ def mouseMove(event):
       else:
          screen.coords(lineItem, x1, y1, x2, y2)
               
-def callback(event):
+def callback(event):   # Mouse button pressed
    global segs
    global factors
    global segs01   
@@ -303,8 +335,13 @@ def callback(event):
    global lvl
    global i
    global lineDrawn
-   if(i<=4):
-     if origin == 1:
+#   print("press");
+#   print("lvl = ", lvl);
+#   print("i = ", i);
+#   print("segs01 = ", segs01);
+   
+   if (i<=4):
+     if (origin == 1):
         origin = 0
         lineDrawn = 0
         segs01[lvl].append([0, 0, 0, 0])            
@@ -318,12 +355,13 @@ def callback(event):
         drawcircle(screen, segs01[lvl][i][2], segs01[lvl][i][3], 1, colors[lvl])
         drawCompo(screen, colors[lvl], segs01[lvl][i], shape, lvl) 
         if lvl == 1:
+           #print("i = i + 1")
            i = i + 1
-           segs = updateFractal(segs01, i, origin, maxLev)
+           updateFractal(segs01, i, origin, maxLev)
            redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
         else:
-           segs.append(np.zeros([1,4], np.int))
-           factors.append(np.zeros([1,1], np.int))
+           segs.append(np.zeros([1,4], int))
+           factors.append(np.zeros([1,1], int))
            segs[0][0][0:4] = segs01[0][0][0:4]
            factors[0][0][0] = 1
            lvl = 1
@@ -331,7 +369,6 @@ def callback(event):
 def resize(event):
    wi, he = master.winfo_width(), master.winfo_height()
    screen.config(width=wi - 165, height=he-20)
-   #back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
 
 def backKeyI():
    global colors, bgcolor
@@ -346,16 +383,16 @@ def backKeyI():
       origin = 1 - origin
       if(origin == 0):
          if i > 0:
-         	i = i - 1
+            i = i - 1
          elif lvl == 1:
-         	lvl = 0
+            lvl = 0
          segs01[lvl][i][2:4] = [0, 0]
-         segs = updateFractal(segs01, i, origin, maxLev)
+         updateFractal(segs01, i, origin, maxLev)
          redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
          lineDrawn = 0
       else:
          segs01[lvl].pop()
-         segs = updateFractal(segs01, i, origin, maxLev)
+         updateFractal(segs01, i, origin, maxLev)
          redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
 
 def backKey(event):
@@ -383,12 +420,12 @@ def key(event):
    if event.char == '+' and maxLev <= 9:
       maxLev = maxLev + 1
       maxLevScale.set(maxLev)
-      segs = updateFractal(segs01, i, origin, maxLev)
+      updateFractal(segs01, i, origin, maxLev)
       redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
    if event.char == '-' and maxLev >= 3:
       maxLev = maxLev - 1
       maxLevScale.set(maxLev)
-      segs = updateFractal(segs01, i, origin, maxLev)
+      updateFractal(segs01, i, origin, maxLev)
       redrawFractal(screen, segs, origin, bgcolor, colors, maxLev, shape)
    if event.char == 'h':
       displayHelp()
@@ -423,53 +460,53 @@ master.configure(bg='white')
 #wi, he = master.winfo_width(), master.winfo_height()
 
 #screen = Canvas(master, width=wi - 165, height=he-20, background = "black")
-screen = Canvas(master, width=wi - 165, height=he-20, background = "black")
-#back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
+screen = tk.Canvas(master, width=wi - 165, height=he-20, background = "black")
+back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
 
 screen.grid(rowspan = 18)
 
-filledCircle = PhotoImage(file="img/filledCircle.gif")
-emptyCircle = PhotoImage(file="img/emptyCircle.gif")
-line = PhotoImage(file="img/line.gif")
+filledCircle = tk.PhotoImage(file="img/filledCircle.gif")
+emptyCircle = tk.PhotoImage(file="img/emptyCircle.gif")
+line = tk.PhotoImage(file="img/line.gif")
 
 styleButton = []
-styleButton.append(Tkinter.Button(master, image = line, command = lambda: changeStyle(0), relief = SUNKEN))
-styleButton.append(Tkinter.Button(master, image = filledCircle, command = lambda: changeStyle(1)))
-styleButton.append(Tkinter.Button(master, image = emptyCircle, command = lambda: changeStyle(2)))
+styleButton.append(tk.Button(master, image = line, command = lambda: changeStyle(0), relief = tk.SUNKEN))
+styleButton.append(tk.Button(master, image = filledCircle, command = lambda: changeStyle(1)))
+styleButton.append(tk.Button(master, image = emptyCircle, command = lambda: changeStyle(2)))
 for ii in [0, 1, 2]:
    styleButton[ii].grid(row = 0, column = ii + 1, padx = 5, pady = 5)
 
-widthScale = Scale(master, from_=1, to=20, command = changeLineWidth, orient=HORIZONTAL, length = 120, label = "Ancho de línea")
+widthScale = tk.Scale(master, from_=1, to=20, command = changeLineWidth, orient=tk.HORIZONTAL, length = 120, label = "Ancho de línea")
 widthScale.set(lineWidth)
-widthScale.grid(row = 1, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = W+E)
+widthScale.grid(row = 1, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = tk.W+tk.E)
 
-maxLevScale = Scale(master, from_=2, to=10, command = changeMaxLev, orient=HORIZONTAL, label = "Niveles")
+maxLevScale = tk.Scale(master, from_=2, to=10, command = changeMaxLev, orient=tk.HORIZONTAL, label = "Niveles")
 maxLevScale.set(maxLev)
-maxLevScale.grid(row = 2, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = W+E)
+maxLevScale.grid(row = 2, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = tk.W+tk.E)
 
-backColorButton = Tkinter.Button(master, text = "Fondo", fg = htmlColor(white), bg = bgcolor, command = changeBackColor)
-backColorButton.grid(row = 3, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = W+E)
+backColorButton = tk.Button(master, text = "Fondo", fg = htmlColor(white), bg = bgcolor, command = changeBackColor)
+backColorButton.grid(row = 3, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = tk.W+tk.E)
 
 lineColorButton = []
 for ii in range(0, 10):
-   lineColorButton.append(Tkinter.Button(master, bg = colors[ii], text = str(ii + 1), command = lambda ii = ii: changeLineColor(ii)))
-   lineColorButton[ii].grid(row = 4 + (ii)/3, column = (ii % 3) + 1, columnspan = 1, padx = 5, pady = 1, sticky = W+E)   
+   lineColorButton.append(tk.Button(master, bg = colors[ii], text = str(ii + 1), command = lambda ii = ii: changeLineColor(ii)))
+   lineColorButton[ii].grid(row = 4 + (ii)//3, column = (ii % 3) + 1, columnspan = 1, padx = 5, pady = 1, sticky = tk.W+tk.E)   
 
-clearPointButton = Tkinter.Button(master, text = 'Borrar último punto', command = backKeyI)
-clearPointButton.grid(row = 15, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = W+E+S)
+clearPointButton = tk.Button(master, text = 'Borrar último punto', command = backKeyI)
+clearPointButton.grid(row = 15, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = tk.W+tk.E+tk.S)
    
-clearButton = Tkinter.Button(master, text = 'Borrar todo', command = clearScreen)
-clearButton.grid(row = 16, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = W+E)
+clearButton = tk.Button(master, text = 'Borrar todo', command = clearScreen)
+clearButton.grid(row = 16, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = tk.W+tk.E)
 
-exitButton = Tkinter.Button(master, text = 'Salir', command = master.destroy)
-exitButton.grid(row = 17, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = W+E)
+exitButton = tk.Button(master, text = 'Salir', command = master.destroy)
+exitButton.grid(row = 17, column = 1, columnspan = 3, padx = 5, pady = 5, sticky = tk.W+tk.E)
 master.rowconfigure(15, weight = 5)
 
 # create a toplevel menu
-menubar = Menu(master)
+menubar = tk.Menu(master)
 
 # create a pulldown menu, and add it to the menu bar
-filemenu = Menu(menubar, tearoff=0)
+filemenu = tk.Menu(menubar, tearoff=0)
 filemenu.add_command(label="Abrir", command=loadFile)
 filemenu.add_command(label="Guardar", command=saveFile)
 filemenu.add_command(label="Exportar", command=exportImage)
@@ -486,7 +523,7 @@ menubar.add_cascade(label="Archivos", menu=filemenu)
 
 menubar.add_command(label="Ayuda", command=displayHelp)
 
-helpmenu = Menu(menubar, tearoff=0)
+helpmenu = tk.Menu(menubar, tearoff=0)
 helpmenu.add_command(label="Ayuda", command=displayHelp)
 #menubar.add_cascade(label="Help", menu=helpmenu)
 
@@ -509,6 +546,6 @@ master.bind("<Key>", key)
 
 #screen.pack()
 
-mainloop()
+tk.mainloop()
 
 

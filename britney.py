@@ -26,7 +26,7 @@ import numpy as np
 #from numpy import matrix
 #from numpy import linalg
 
-import Tkinter
+import tkinter
 import tkMessageBox
 import tkColorChooser 
 import tkFileDialog
@@ -99,8 +99,8 @@ def redrawFractal(screen, segs, origin, backColor, colors, maxLev, shape):
    global back
    global factors
    screen.delete(ALL)
-   #screen.configure(background=bgcolor)
-   back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
+   screen.configure(background=bgcolor)
+   #back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
    for l in range(0, maxLev + 1):
       if(len(segs) > l):
          for j in range(0, len(segs[l])):
@@ -142,9 +142,11 @@ def updateFractal(segs01, i, origin, maxLev):
       if(len(segs01)>1):
          segs.append(np.zeros([len(segs01[1]), 4], np.int))
          factors.append(np.zeros([len(segs01[1]), 1], np.int))
-         for ii in range(0, len(segs01[1])):
-            segs[1][ii][0:4] = segs01[1][ii][0:4]
-            factors[1][ii][0] = 0.9
+#         for ii in range(0, len(segs01[1])):
+#            segs[1][ii][0:4] = segs01[1][ii][0:4]
+#            factors[1][ii][0] = 0.9
+         segs[1][0:len(segs01[1])][0:4] = segs01[1][0:len(segs01[1])][0:4]
+         factors[1][0:len(segs01[1])][0] = 0.9
          if(len(segs01[1])>1) or (origin == 1):         
             A = np.matrix( [[segs01[0][0][0], -segs01[0][0][1], 1, 0], [segs01[0][0][1], segs01[0][0][0], 0, 1], [segs01[0][0][2], -segs01[0][0][3], 1, 0], [segs01[0][0][3], segs01[0][0][2], 0, 1]])
             AI = A.I
@@ -199,7 +201,8 @@ def changeBackColor():
    if ctuple != None:
       bgcolor = cstr
       backColorButton.configure(bg = bgcolor)
-      screen.itemconfig(back, fill = bgcolor)
+      #screen.itemconfig(back, fill = bgcolor)
+      screen.configure(background=bgcolor)
 
 def changeLineColor(cLev):
    global colors
@@ -225,7 +228,7 @@ def clearScreen():
    segs01.append(list())
    segs01.append(list())
    screen.delete(ALL)
-   back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
+   #back = screen.create_rectangle((0, 0, wi, he), fill = bgcolor)
 
 def saveFile():
    global lvl
@@ -328,6 +331,7 @@ def callback(event):
 def resize(event):
    wi, he = master.winfo_width(), master.winfo_height()
    screen.config(width=wi - 165, height=he-20)
+   #back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
 
 def backKeyI():
    global colors, bgcolor
@@ -420,7 +424,7 @@ master.configure(bg='white')
 
 #screen = Canvas(master, width=wi - 165, height=he-20, background = "black")
 screen = Canvas(master, width=wi - 165, height=he-20, background = "black")
-back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
+#back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
 
 screen.grid(rowspan = 18)
 

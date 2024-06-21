@@ -20,7 +20,7 @@
 
 from io import StringIO
 import math
-import os
+import os, sys
 import pickle
 import numpy as np
 #from numpy import matrix
@@ -76,6 +76,33 @@ segs01.append(list())
 segs01.append(list())
 i = 0
 lineWidth = 3
+
+# For including images
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+#filledCircle = tk.PhotoImage(file=img_dir + "/filledCircle.gif")
+#emptyCircle = tk.PhotoImage(file=img_dir + "/emptyCircle.gif")
+#line = tk.PhotoImage(file=img_dir + "/line.gif")
+
+img_filledCircle = resource_path("img/filledCircle.gif")
+img_emptyCircle = resource_path("img/emptyCircle.gif")
+img_line = resource_path("img/line.gif")
+
+print("hola")
+print(img_filledCircle)
+print("chau")
+
+#added_files = [("sound", "sound"), ("img", "img")]
+#datas=added_files
 
 def displayHelp():
    helpT  = '0-9 \t Cambiar color del nivel \r'
@@ -465,9 +492,10 @@ back = screen.create_rectangle((0, 0, wi-165, he-20), fill = bgcolor)
 
 screen.grid(rowspan = 18)
 
-filledCircle = tk.PhotoImage(file="img/filledCircle.gif")
-emptyCircle = tk.PhotoImage(file="img/emptyCircle.gif")
-line = tk.PhotoImage(file="img/line.gif")
+#filledCircle = tk.PhotoImage(file="img/filledCircle.gif")
+filledCircle = tk.PhotoImage(file=img_filledCircle)
+emptyCircle = tk.PhotoImage(file=img_emptyCircle)
+line = tk.PhotoImage(file=img_line)
 
 styleButton = []
 styleButton.append(tk.Button(master, image = line, command = lambda: changeStyle(0), relief = tk.SUNKEN))

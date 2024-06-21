@@ -1,0 +1,5 @@
+auto-py-to-exe
+
+Onefile: One File
+Console Window: Window Based
+Additional files: Add Folder img/
